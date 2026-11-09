@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
@@ -41,8 +42,8 @@ export function Navbar() {
   return (
     <header ref={header} className={`${pathname === "/" ? "absolute inset-x-0 top-0 bg-black/15" : "sticky fixed top-0 bg-black"} z-50 border-b border-white/15 text-white backdrop-blur-sm [&_a:focus-visible]:outline-white [&_button:focus-visible]:outline-white`}>
       <div className="mx-auto flex h-20 max-w-[1536px] items-center justify-between gap-2 px-5 sm:px-8 lg:h-24 lg:px-12 xl:px-16">
-        <Link href="/" className="inline-flex min-h-11 items-center text-[26px] font-semibold min-[360px]:text-[30px] tracking-[-1.7px] sm:text-[34px]" aria-label="Dentora home">
-          dentora<span className="text-brand" aria-hidden="true">.</span>
+        <Link href="/" className="inline-flex min-h-11 shrink-0 items-center" aria-label="Dentora home">
+          <Image src="/images/dentora-navbar-logo.png" alt="" width={900} height={240} sizes="(max-width: 359px) 96px, (max-width: 767px) 30vw, (max-width: 1023px) 136px, 176px" className="h-auto w-[clamp(96px,30vw,136px)] lg:w-[176px]" />
         </Link>
         <nav aria-label="Main navigation" className="hidden items-center gap-5 lg:flex xl:gap-8">
           {marketingNavigation.map((item) => item.href ? (
@@ -61,4 +62,3 @@ export function Navbar() {
     </header>
   );
 }
-

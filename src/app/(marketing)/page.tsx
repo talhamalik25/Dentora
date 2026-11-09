@@ -1,4 +1,5 @@
 import { Hero } from "@/components/marketing/hero";
+import { AboutIntroduction } from "@/components/marketing/about-introduction";
 import {
   ArrowUpRight,
   Stethoscope,
@@ -15,31 +16,11 @@ const serviceIcons = [Stethoscope, Sparkles, ScanLine];
 
 export default function Home() {
   return (
-    <main id="main-content">
+    <main id="main-content" className="max-sm:overflow-x-clip">
       <Hero />
 
-      {/* ── Values Strip ─────────────────────────────── */}
-      <section className="border-y border-border bg-ice">
-        <SiteContainer className="grid gap-6 py-10 sm:grid-cols-3 md:py-12">
-          {[
-            ["Modern approach", "Considered, contemporary dental care."],
-            ["Patient comfort", "Every visit shaped around you."],
-            ["Lasting results", "Care you can trust over time."],
-          ].map(([title, text]) => (
-            <div
-              key={title}
-              className="flex items-center gap-4 max-sm:justify-start sm:justify-center sm:border-l sm:border-border sm:first:border-l-0"
-            >
-              <div>
-                <h2 className="text-[13px] font-semibold text-black">
-                  {title}
-                </h2>
-                <p className="mt-1 text-[11px] text-muted">{text}</p>
-              </div>
-            </div>
-          ))}
-        </SiteContainer>
-      </section>
+      {/* ── Section 02: The Art of Better Smiles (About Introduction) ── */}
+      <AboutIntroduction />
 
       {/* ── Services ─────────────────────────────────── */}
       <section id="services" className="py-20 md:py-28 lg:py-36">

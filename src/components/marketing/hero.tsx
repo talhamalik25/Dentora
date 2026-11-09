@@ -7,13 +7,12 @@ import { HeroEntrance } from "./hero-entrance";
 export function Hero() {
   return (
     <section aria-labelledby="hero-heading" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-black text-white md:min-h-[max(760px,100svh)] lg:justify-center">
-      <div aria-hidden="true" className="relative mt-[calc(5rem+1px)] h-[clamp(17.5rem,72vw,20rem)] shrink-0 overflow-hidden md:h-[clamp(22rem,48vw,30rem)] lg:absolute lg:inset-0 lg:mt-0 lg:h-auto lg:-z-30">
+      <div aria-hidden="true" className="absolute inset-0 -z-30 overflow-hidden md:relative md:inset-auto md:mt-[calc(5rem+1px)] md:h-[clamp(22rem,48vw,30rem)] md:shrink-0 lg:absolute lg:inset-0 lg:mt-0 lg:h-auto">
         <Image src="/images/heroimage.png" alt="" fill preload sizes="100vw" className="object-cover object-[68%_center] md:object-center" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_42%,rgba(0,0,0,0.38)_68%,#000_100%)] lg:hidden" />
       </div>
       <div aria-hidden="true" className="absolute inset-0 -z-20 bg-linear-to-t from-black/95 via-black/35 to-black/10 lg:bg-linear-to-r lg:from-black/85 lg:via-black/45 lg:to-transparent" />
       <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-black/60 to-transparent" />
-      <div className="relative z-10 mx-auto w-full max-w-[1536px] px-5 pt-6 pb-10 sm:px-8 md:pt-10 md:pb-12 lg:px-12 lg:pt-44 lg:pb-52 xl:px-16">
+      <div className="relative z-10 mx-auto w-full max-w-[1536px] px-5 pt-[clamp(21rem,82vw,24rem)] pb-10 sm:px-8 md:pt-10 md:pb-12 lg:px-12 lg:pt-44 lg:pb-52 xl:px-16">
         <HeroEntrance>
           <p data-hero-reveal className="mb-4 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.22em] text-white/80 md:mb-6"><span className="h-px w-7 bg-white/60" aria-hidden="true" />Care, thoughtfully considered</p>
           <h1 id="hero-heading" className="max-w-[760px] text-[clamp(34px,9vw,42px)] leading-[1.02] font-medium tracking-[-1.5px] md:max-w-[550px] md:text-[clamp(48px,6.3vw,64px)] md:leading-[1.08] md:tracking-[-2.2px] lg:max-w-[760px] lg:text-[clamp(64px,5.7vw,88px)] lg:tracking-[-3.5px]">

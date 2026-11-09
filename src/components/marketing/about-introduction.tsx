@@ -55,84 +55,65 @@ export function AboutIntroduction() {
       const media = gsap.matchMedia();
 
       media.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Editorial Label & Divider Reveal
-        gsap.fromTo(
-          "[data-about-label]",
-          { opacity: 0, y: 14 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.65,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 78%",
-              once: true,
-            },
-          }
+        let observer: IntersectionObserver | undefined;
+
+        // Reveal editorial typography when section enters viewport
+        observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+              tl.fromTo(
+                "[data-about-label]",
+                { opacity: 0, y: 16 },
+                { opacity: 1, y: 0, duration: 0.6, clearProps: "all" }
+              )
+                .fromTo(
+                  "[data-about-heading-line]",
+                  { opacity: 0, y: 24 },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.75,
+                    stagger: 0.12,
+                    clearProps: "all",
+                  },
+                  "-=0.4"
+                )
+                .fromTo(
+                  "[data-about-copy]",
+                  { opacity: 0, y: 18 },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.65,
+                    stagger: 0.08,
+                    clearProps: "all",
+                  },
+                  "-=0.45"
+                )
+                .fromTo(
+                  "[data-about-cta]",
+                  { opacity: 0, y: 14 },
+                  { opacity: 1, y: 0, duration: 0.6, clearProps: "all" },
+                  "-=0.45"
+                );
+
+              observer?.disconnect();
+            }
+          },
+          { threshold: 0.12 }
         );
 
-        // 2. Headline Reveal with staggered lines
-        gsap.fromTo(
-          "[data-about-heading-line]",
-          { opacity: 0, y: 24 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.12,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 74%",
-              once: true,
-            },
-          }
-        );
+        observer.observe(section);
 
-        // 3. Supporting copy & CTA fade-up
-        gsap.fromTo(
-          "[data-about-copy]",
-          { opacity: 0, y: 18 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.75,
-            delay: 0.2,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 70%",
-              once: true,
-            },
-          }
-        );
-
-        gsap.fromTo(
-          "[data-about-cta]",
-          { opacity: 0, y: 16 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.65,
-            delay: 0.32,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 68%",
-              once: true,
-            },
-          }
-        );
-
-        // 4. Subtle 3D Sculpture Scroll Parallax
+        // Subtle 3D Dental Sculpture scroll parallax
         if (sculptureWrapperRef.current) {
           gsap.fromTo(
             sculptureWrapperRef.current,
-            { y: 30, opacity: 0.85 },
+            { y: 24 },
             {
-              y: -30,
-              opacity: 1,
+              y: -24,
               ease: "none",
               scrollTrigger: {
                 trigger: section,
@@ -146,6 +127,8 @@ export function AboutIntroduction() {
             }
           );
         }
+
+        return () => observer?.disconnect();
       });
     }, sectionRef);
 

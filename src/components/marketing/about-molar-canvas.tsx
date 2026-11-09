@@ -23,7 +23,8 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
     if (!container) return;
 
     // Check prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let prefersReducedMotion = motionPreference.matches;
 
     // Scene setup
     const scene = new THREE.Scene();
@@ -81,6 +82,8 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
     // Tooth group for combining idle rotation + pointer tilt + scroll parallax
     const toothGroup = new THREE.Group();
     scene.add(toothGroup);
+    const userRotationGroup = new THREE.Group();
+    toothGroup.add(userRotationGroup);
 
     // Material: high-end liquid chrome/porcelain
     const toothMaterial = new THREE.MeshPhysicalMaterial({
@@ -106,7 +109,7 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
           mesh.rotation.y = 0.45;
           mesh.rotation.z = -0.06;
           toothRef.current = mesh;
-          toothGroup.add(mesh);
+          userRotationGroup.add(mesh);
         }
       },
       undefined,
@@ -119,7 +122,7 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
         fallbackMesh.rotation.x = 0.2;
         fallbackMesh.rotation.y = 0.4;
         toothRef.current = fallbackMesh;
-        toothGroup.add(fallbackMesh);
+        userRotationGroup.add(fallbackMesh);
       }
     );
 
@@ -129,7 +132,29 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
     let currentTiltX = 0;
     let currentTiltY = 0;
 
-    const onPointerMove = (e: MouseEvent) => {
+    let isDragging = false;
+    let activePointerId: number | null = null;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+    let lastPointerTime = 0;
+    let currentDragX = 0;
+    let currentDragY = 0;
+    let targetDragX = 0;
+    let targetDragY = 0;
+    let dragVelocityX = 0;
+    let dragVelocityY = 0;
+    let idleRotationOffset = 0;
+    let lastAutoRotationY = 0.45;
+    const canvas = renderer.domElement;
+    canvas.style.touchAction = "none";
+    canvas.style.cursor = "grab";
+    canvas.style.userSelect = "none";
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, value));
+
+    const onHoverMove = (e: MouseEvent) => {
+      if (isDragging) return;
       const rect = container.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
       const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -142,7 +167,97 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
       targetTiltY = 0;
     };
 
-    window.addEventListener("mousemove", onPointerMove, { passive: true });
+    const onPointerDown = (event: PointerEvent) => {
+      if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+
+      event.preventDefault();
+      isDragging = true;
+      activePointerId = event.pointerId;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      lastPointerTime = performance.now();
+      targetDragX = currentDragX;
+      targetDragY = currentDragY;
+      dragVelocityX = 0;
+      dragVelocityY = 0;
+      lastAutoRotationY = toothRef.current?.rotation.y ?? lastAutoRotationY;
+      canvas.style.cursor = "grabbing";
+      canvas.setPointerCapture(event.pointerId);
+    };
+
+    const onDragMove = (event: PointerEvent) => {
+      if (!isDragging || event.pointerId !== activePointerId) return;
+
+      event.preventDefault();
+      const now = performance.now();
+      const deltaX = clamp(event.clientX - lastPointerX, -80, 80);
+      const deltaY = clamp(event.clientY - lastPointerY, -80, 80);
+      const elapsed = Math.max((now - lastPointerTime) / 1000, 1 / 240);
+      const rotationX = deltaY * 0.008;
+      const rotationY = deltaX * 0.008;
+
+      targetDragX = clamp(targetDragX + rotationX, -0.9, 0.9);
+      targetDragY = clamp(targetDragY + rotationY, -Math.PI, Math.PI);
+      dragVelocityX = clamp(rotationX / elapsed, -1.2, 1.2);
+      dragVelocityY = clamp(rotationY / elapsed, -1.2, 1.2);
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      lastPointerTime = now;
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      if (!isDragging || event.pointerId !== activePointerId) return;
+
+      isDragging = false;
+      activePointerId = null;
+      if (performance.now() - lastPointerTime > 100) {
+        dragVelocityX = 0;
+        dragVelocityY = 0;
+      }
+      canvas.style.cursor = "grab";
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+
+      const baseRotationY =
+        0.45 + clock.elapsedTime * 0.18 + progressRef.current * 0.8;
+      idleRotationOffset = lastAutoRotationY - baseRotationY;
+    };
+
+    const onLostPointerCapture = (event: PointerEvent) => {
+      if (!isDragging || event.pointerId !== activePointerId) return;
+
+      isDragging = false;
+      activePointerId = null;
+      canvas.style.cursor = "grab";
+      const baseRotationY =
+        0.45 + clock.elapsedTime * 0.18 + progressRef.current * 0.8;
+      idleRotationOffset = lastAutoRotationY - baseRotationY;
+    };
+
+    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
+      prefersReducedMotion = event.matches;
+      if (prefersReducedMotion) {
+        dragVelocityX = 0;
+        dragVelocityY = 0;
+        targetDragX = currentDragX;
+        targetDragY = currentDragY;
+        if (toothRef.current && !isDragging) {
+          lastAutoRotationY = toothRef.current.rotation.y;
+          idleRotationOffset =
+            lastAutoRotationY -
+            (0.45 + clock.elapsedTime * 0.18 + progressRef.current * 0.8);
+        }
+      }
+    };
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onDragMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("lostpointercapture", onLostPointerCapture);
+    motionPreference.addEventListener("change", onMotionPreferenceChange);
+    window.addEventListener("mousemove", onHoverMove, { passive: true });
     container.addEventListener("mouseleave", onPointerLeave);
 
     // Resize handling
@@ -174,10 +289,12 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
+      const delta = Math.min(clock.getDelta(), 0.05);
 
       if (!isVisible || !renderer) return;
 
-      const elapsed = clock.getElapsedTime();
+      const elapsed = clock.elapsedTime;
+      const baseRotationY = 0.45 + elapsed * 0.18 + progressRef.current * 0.8;
 
       if (!prefersReducedMotion) {
         // Damped pointer tilt
@@ -190,12 +307,37 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
         // Subtle gentle idle floating
         if (toothRef.current) {
           toothRef.current.position.y = Math.sin(elapsed * 0.9) * 0.05;
-          // Smooth slow continuous spin
-          toothRef.current.rotation.y = 0.45 + elapsed * 0.18 + progressRef.current * 0.8;
           // Gentle lateral roll
           toothRef.current.rotation.z = -0.06 + Math.sin(elapsed * 0.7) * 0.025;
+
+          if (!isDragging) {
+            // Resume the idle and scroll rotation from the angle held during the drag.
+            idleRotationOffset *= Math.exp(-3.5 * delta);
+            toothRef.current.rotation.y = baseRotationY + idleRotationOffset;
+            lastAutoRotationY = toothRef.current.rotation.y;
+          }
         }
+      } else if (toothRef.current && !isDragging) {
+        // Keep the idle angle fixed while reduced motion is enabled.
+        lastAutoRotationY = toothRef.current.rotation.y;
+        idleRotationOffset = lastAutoRotationY - baseRotationY;
       }
+
+      if (!isDragging && !prefersReducedMotion) {
+        targetDragX = clamp(targetDragX + dragVelocityX * delta, -0.9, 0.9);
+        targetDragY = clamp(targetDragY + dragVelocityY * delta, -Math.PI, Math.PI);
+        const inertiaDamping = Math.exp(-5 * delta);
+        dragVelocityX *= inertiaDamping;
+        dragVelocityY *= inertiaDamping;
+        if (Math.abs(dragVelocityX) < 0.01) dragVelocityX = 0;
+        if (Math.abs(dragVelocityY) < 0.01) dragVelocityY = 0;
+      }
+
+      const dragSmoothing = prefersReducedMotion ? 1 : 1 - Math.exp(-18 * delta);
+      currentDragX += (targetDragX - currentDragX) * dragSmoothing;
+      currentDragY += (targetDragY - currentDragY) * dragSmoothing;
+      userRotationGroup.rotation.x = currentDragX;
+      userRotationGroup.rotation.y = currentDragY;
 
       renderer.render(scene, camera);
     };
@@ -205,9 +347,18 @@ export default function AboutMolarCanvas({ scrollProgress = 0 }: AboutMolarCanva
     return () => {
       cancelAnimationFrame(animId);
       observer.disconnect();
-      window.removeEventListener("mousemove", onPointerMove);
+      window.removeEventListener("mousemove", onHoverMove);
       container.removeEventListener("mouseleave", onPointerLeave);
       window.removeEventListener("resize", onResize);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onDragMove);
+      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointercancel", onPointerUp);
+      canvas.removeEventListener("lostpointercapture", onLostPointerCapture);
+      motionPreference.removeEventListener("change", onMotionPreferenceChange);
+      if (activePointerId !== null && canvas.hasPointerCapture(activePointerId)) {
+        canvas.releasePointerCapture(activePointerId);
+      }
 
       pmremGenerator.dispose();
       envTexture.dispose();

@@ -45,16 +45,16 @@ export function ExperienceMotion({ children }: { children: ReactNode }) {
         tl.fromTo(
           initialHeader,
           { opacity: 1, y: 0 },
-          { opacity: 0, y: -14, duration: 0.25, ease: "power1.out" },
+          { opacity: 0, y: -16, duration: 0.2, ease: "power1.out" },
           0
         );
       }
 
-      // 2. Centered framed card smoothly expands to full viewport width
+      // 2. Centered framed card smoothly expands to 100% full viewport bleed
       tl.fromTo(
         frame,
-        { clipPath: "inset(3.5% 5% round 20px)" },
-        { clipPath: "inset(0% 0% round 0px)", duration: 0.55, ease: "none" },
+        { clipPath: "inset(72px 5% 4% 5% round 20px)" },
+        { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 0.5, ease: "none" },
         0
       );
 
@@ -63,35 +63,35 @@ export function ExperienceMotion({ children }: { children: ReactNode }) {
         tl.fromTo(
           img,
           { scale: 1.08 },
-          { scale: 1.0, duration: 0.8, ease: "none" },
+          { scale: 1.0, duration: 0.75, ease: "none" },
           0
         );
       }
 
-      // 4. Contrast overlay deepens to support white typography
+      // 4. Contrast overlay deepens promptly to guarantee pristine text contrast
       if (overlay) {
         tl.fromTo(
           overlay,
-          { opacity: 0.15 },
-          { opacity: 0.72, duration: 0.5, ease: "none" },
-          0.12
+          { opacity: 0.18 },
+          { opacity: 0.88, duration: 0.35, ease: "none" },
+          0.05
         );
       }
 
-      // 5. Editorial headline and copy reveal with staggered translation
+      // 5. Editorial headline and copy reveal early (settling by ~45% progress)
       const textElements = [eyebrow, heading, copy, disclosure].filter(Boolean);
       if (textElements.length > 0) {
         tl.fromTo(
           textElements,
-          { opacity: 0, y: 28 },
+          { opacity: 0, y: 22 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.42,
-            stagger: 0.08,
+            duration: 0.28,
+            stagger: 0.05,
             ease: "power2.out",
           },
-          0.3
+          0.14
         );
       }
     }, container);
@@ -126,38 +126,38 @@ export function ExperienceMotion({ children }: { children: ReactNode }) {
         tl.fromTo(
           initialHeader,
           { opacity: 1, y: 0 },
-          { opacity: 0, y: -10, duration: 0.22, ease: "power1.out" },
+          { opacity: 0, y: -12, duration: 0.18, ease: "power1.out" },
           0
         );
       }
 
       tl.fromTo(
         frame,
-        { clipPath: "inset(2.5% 3.5% round 16px)" },
-        { clipPath: "inset(0% 0% round 0px)", duration: 0.5, ease: "none" },
+        { clipPath: "inset(64px 3.5% 3% 3.5% round 16px)" },
+        { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 0.45, ease: "none" },
         0
       );
 
       if (img) {
-        tl.fromTo(img, { scale: 1.05 }, { scale: 1.0, duration: 0.7, ease: "none" }, 0);
+        tl.fromTo(img, { scale: 1.05 }, { scale: 1.0, duration: 0.65, ease: "none" }, 0);
       }
 
       if (overlay) {
-        tl.fromTo(overlay, { opacity: 0.18 }, { opacity: 0.74, duration: 0.45, ease: "none" }, 0.12);
+        tl.fromTo(overlay, { opacity: 0.2 }, { opacity: 0.85, duration: 0.38, ease: "none" }, 0.05);
       }
 
       const textElements = [eyebrow, heading, copy, disclosure].filter(Boolean);
       if (textElements.length > 0) {
         tl.fromTo(
           textElements,
-          { opacity: 0, y: 22 },
-          { opacity: 1, y: 0, duration: 0.38, stagger: 0.07, ease: "power2.out" },
-          0.28
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.3, stagger: 0.05, ease: "power2.out" },
+          0.16
         );
       }
     }, container);
 
-    // ── Mobile (<768px): Shorter, unpinned reveal — no touch trapping ──
+    // ── Mobile (<768px): Shorter, unpinned reveal — preserves natural touch scrolling ──
     media.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => {
       const frame = container.querySelector<HTMLElement>("[data-experience-frame]");
       const img = container.querySelector<HTMLElement>("[data-experience-image]");
@@ -184,33 +184,33 @@ export function ExperienceMotion({ children }: { children: ReactNode }) {
         tl.fromTo(
           initialHeader,
           { opacity: 1 },
-          { opacity: 0, duration: 0.22, ease: "power1.out" },
+          { opacity: 0, duration: 0.18, ease: "power1.out" },
           0
         );
       }
 
       tl.fromTo(
         frame,
-        { clipPath: "inset(10px 12px round 14px)" },
-        { clipPath: "inset(0px 0px round 0px)", duration: 0.5, ease: "none" },
+        { clipPath: "inset(54px 12px 14px 12px round 14px)" },
+        { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 0.45, ease: "none" },
         0
       );
 
       if (img) {
-        tl.fromTo(img, { scale: 1.04 }, { scale: 1.0, duration: 0.6, ease: "none" }, 0);
+        tl.fromTo(img, { scale: 1.04 }, { scale: 1.0, duration: 0.55, ease: "none" }, 0);
       }
 
       if (overlay) {
-        tl.fromTo(overlay, { opacity: 0.25 }, { opacity: 0.78, duration: 0.4, ease: "none" }, 0.1);
+        tl.fromTo(overlay, { opacity: 0.25 }, { opacity: 0.85, duration: 0.35, ease: "none" }, 0.05);
       }
 
       const textElements = [eyebrow, heading, copy, disclosure].filter(Boolean);
       if (textElements.length > 0) {
         tl.fromTo(
           textElements,
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.35, stagger: 0.06, ease: "power2.out" },
-          0.2
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.28, stagger: 0.05, ease: "power2.out" },
+          0.15
         );
       }
     }, container);

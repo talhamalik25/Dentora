@@ -3,8 +3,7 @@ import { AboutIntroduction } from "@/components/marketing/about-introduction";
 import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { ButtonLink } from "@/components/ui/button";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { Reveal } from "@/components/ui/reveal";
+import { FirstVisit } from "@/components/marketing/first-visit";
 import { Treatments } from "@/components/marketing/treatments";
 import { DentoraDifference } from "@/components/marketing/dentora-difference";
 import { OurSpecialists } from "@/components/marketing/our-specialists";
@@ -30,51 +29,7 @@ export default function Home() {
       <ClinicExperience />
 
       {/* ── Your Visit ───────────────────────────────── */}
-      <section id="your-visit" className="py-20 md:py-28 lg:py-36">
-        <SiteContainer>
-          <Reveal>
-            <SectionHeading eyebrow="Your first visit">
-              A simple start to better care.
-            </SectionHeading>
-
-            <div className="mt-10 grid gap-10 sm:grid-cols-3 lg:gap-12">
-              {[
-                [
-                  "Let's get acquainted",
-                  "Share your questions and what you would like from your care.",
-                ],
-                [
-                  "Understand your options",
-                  "Talk through an assessment and possible next steps with a dentist.",
-                ],
-                [
-                  "Make a plan together",
-                  "Choose a path that considers your needs, comfort, and priorities.",
-                ],
-              ].map(([title, text], i) => (
-                <article
-                  key={title}
-                  className="border-b border-border pb-6 sm:border-b-0 sm:pb-0"
-                >
-                  <span className="text-[28px] font-bold text-brand">
-                    0{i + 1}
-                  </span>
-                  <h3 className="mt-4 text-[1.35rem] font-bold tracking-tight text-black">
-                    {title}
-                  </h3>
-                  <p className="mt-3 text-[13px] leading-7 text-muted">
-                    {text}
-                  </p>
-                </article>
-              ))}
-            </div>
-            <p className="mt-8 text-[11px] text-muted leading-relaxed">
-              Example patient journey. Actual clinical processes will be
-              confirmed before launch.
-            </p>
-          </Reveal>
-        </SiteContainer>
-      </section>
+      <FirstVisit />
 
       {/* ── CTA Panel ────────────────────────────────── */}
       <section className="pb-20">

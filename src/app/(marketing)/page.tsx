@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
 import { Treatments } from "@/components/marketing/treatments";
 import { DentoraDifference } from "@/components/marketing/dentora-difference";
+import { OurSpecialists } from "@/components/marketing/our-specialists";
 
 export default function Home() {
   return (
@@ -21,6 +22,8 @@ export default function Home() {
 
       {/* ── Approach ─────────────────────────────────── */}
       <DentoraDifference />
+
+      <OurSpecialists />
 
       {/* ── Your Visit ───────────────────────────────── */}
       <section id="your-visit" className="py-20 md:py-28 lg:py-36">

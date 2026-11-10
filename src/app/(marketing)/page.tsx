@@ -1,11 +1,12 @@
 import { Hero } from "@/components/marketing/hero";
 import { AboutIntroduction } from "@/components/marketing/about-introduction";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
 import { Treatments } from "@/components/marketing/treatments";
+import { DentoraDifference } from "@/components/marketing/dentora-difference";
 
 export default function Home() {
   return (
@@ -19,55 +20,7 @@ export default function Home() {
       <Treatments />
 
       {/* ── Approach ─────────────────────────────────── */}
-      <section id="approach" className="bg-ice py-16 md:py-20 lg:py-24">
-        <SiteContainer className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <Reveal>
-            <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center rounded-[160px_160px_16px_16px] border border-border bg-white px-8 py-12 text-center lg:min-h-[380px]">
-              <Sparkles size={36} className="text-brand" aria-hidden="true" />
-              <p className="mt-5 text-[2rem] font-bold leading-tight tracking-tight text-black md:text-[2.2rem]">
-                Dentistry with{" "}
-                <span className="text-brand">understanding.</span>
-              </p>
-              <span className="mt-6 text-[8px] font-semibold uppercase tracking-[2px] text-muted">
-                THE DENTORA PHILOSOPHY
-              </span>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <SectionHeading
-              eyebrow="A different feeling"
-              description="A dental visit should feel clear, considered, and personal. Our concept puts the conversation first, making space to understand what matters to you."
-            >
-              More human.
-              <br />
-              Less clinical.
-            </SectionHeading>
-
-            <ul className="mt-7 list-none space-y-0 p-0">
-              {[
-                "Time to listen, without the rush",
-                "Clear explanations, shared decisions",
-                "Comfort considered at every step",
-              ].map((item, i) => (
-                <li
-                  key={item}
-                  className="border-b border-border py-3.5 text-[13px] text-ink"
-                >
-                  <span className="mr-5 text-[10px] font-semibold text-brand">
-                    0{i + 1}
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 text-xs leading-relaxed text-muted">
-              These are design principles for our demo clinic, not verified
-              clinical claims.
-            </p>
-          </Reveal>
-        </SiteContainer>
-      </section>
+      <DentoraDifference />
 
       {/* ── Your Visit ───────────────────────────────── */}
       <section id="your-visit" className="py-20 md:py-28 lg:py-36">

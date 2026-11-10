@@ -1,18 +1,11 @@
 import { Hero } from "@/components/marketing/hero";
 import { AboutIntroduction } from "@/components/marketing/about-introduction";
-import {
-  ArrowUpRight,
-  Stethoscope,
-  Sparkles,
-  ScanLine,
-} from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Reveal } from "@/components/ui/reveal";
-import { demoServices } from "@/features/marketing/services";
-
-const serviceIcons = [Stethoscope, Sparkles, ScanLine];
+import { Treatments } from "@/components/marketing/treatments";
 
 export default function Home() {
   return (
@@ -23,65 +16,7 @@ export default function Home() {
       <AboutIntroduction />
 
       {/* ── Services ─────────────────────────────────── */}
-      <section id="services" className="py-20 md:py-28 lg:py-36">
-        <SiteContainer>
-          <Reveal>
-            <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
-              <SectionHeading
-                eyebrow="What we offer"
-                description="Explore our range of treatments, from preventive care to cosmetic and restorative dentistry."
-              >
-                Treatments designed
-                <br />
-                around you.
-              </SectionHeading>
-              <p className="text-[11px] text-muted leading-relaxed">
-                Demonstration services · not currently bookable
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {demoServices.map((service, i) => {
-              const Icon = serviceIcons[i];
-              return (
-                <Reveal key={service.id} delay={i * 0.08}>
-                  <article className="group rounded-[14px] border border-border bg-white p-8 transition-shadow duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] lg:p-9">
-                    <span className="text-sm font-medium text-muted">
-                      0{i + 1}
-                    </span>
-                    <div className="mt-5 flex items-center gap-3">
-                      <Icon
-                        size={22}
-                        className="text-brand"
-                        aria-hidden="true"
-                      />
-                      <h3 className="text-[1.3rem] font-bold tracking-tight text-black">
-                        {service.name}
-                      </h3>
-                    </div>
-                    <p className="mt-4 text-[13px] leading-7 text-muted">
-                      {service.description}
-                    </p>
-                    <ButtonLink
-                      href={`/services`}
-                      variant="secondary"
-                      className="mt-6 border-0 px-0 text-xs hover:bg-transparent hover:text-brand"
-                    >
-                      Learn more{" "}
-                      <ArrowUpRight
-                        size={15}
-                        className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                        aria-hidden="true"
-                      />
-                    </ButtonLink>
-                  </article>
-                </Reveal>
-              );
-            })}
-          </div>
-        </SiteContainer>
-      </section>
+      <Treatments />
 
       {/* ── Approach ─────────────────────────────────── */}
       <section id="approach" className="bg-ice py-16 md:py-20 lg:py-24">

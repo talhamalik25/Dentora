@@ -1,13 +1,14 @@
 import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { ButtonLink } from "@/components/ui/button";
+import { clinicConfig } from "@/config/clinic.config";
 import { FirstVisitMotion } from "./first-visit-motion";
 
 const steps = [
   ["Choose your treatment", "Explore dental services and choose the treatment you'd like to discuss."],
   ["Find your time", "Select your preferred dentist and an available appointment time."],
   ["Confirm your visit", "Provide your details and receive confirmation after successful booking."],
-  ["Visit Dentora", "Arrive at the clinic at your scheduled appointment time."],
+  [`Visit ${clinicConfig.identity.name}`, "Arrive at the clinic at your scheduled appointment time."],
 ];
 
 export function FirstVisit() {

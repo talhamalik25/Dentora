@@ -1,12 +1,14 @@
 import Link from "next/link";
+import { clinicConfig } from "@/config/clinic.config";
 
-/** Dentora brand wordmark with inline SVG tooth icon */
+/** Clinic brand wordmark with inline SVG tooth icon */
 export function Brand() {
+  const name = clinicConfig.identity.name.toLowerCase();
   return (
     <Link
       href="/"
       className="inline-flex items-center gap-2.5 text-[26px] font-bold tracking-[-1.5px] text-black hover:opacity-80 transition-opacity duration-200"
-      aria-label="Dentora home"
+      aria-label={`${clinicConfig.identity.name} home`}
     >
       <svg
         width="31"
@@ -28,7 +30,7 @@ export function Brand() {
         />
       </svg>
       <span>
-        dentora<span className="text-brand">.</span>
+        {name}<span className="text-brand">.</span>
       </span>
     </Link>
   );

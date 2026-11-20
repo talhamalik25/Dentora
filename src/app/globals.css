@@ -2,11 +2,11 @@
 
 :root {
   --color-white: #FFFFFF;
-  --color-ice-blue: #EAF2FF;
-  --color-royal-blue: #2563EB;
+  --color-ice-blue: var(--clinic-ice, #EAF2FF);
+  --color-royal-blue: var(--clinic-brand, #2563EB);
   --color-black: #000000;
-  --color-text: #171717;
-  --color-text-muted: #525252;
+  --color-text: var(--clinic-ink, #171717);
+  --color-text-muted: var(--clinic-muted, #525252);
   --color-text-on-ice: #404040;
   --color-border: #E5E7EB;
   --color-separator: rgba(0, 0, 0, 0.10);
@@ -15,16 +15,16 @@
   --radius-card: 14px;
   --radius-pill: 999px;
   --content-max: 1360px;
-  --focus-ring: #2563EB;
+  --focus-ring: var(--clinic-brand, #2563EB);
 }
 
 @theme inline {
-  --color-brand: #2563EB;
-  --color-brand-hover: #1d4ed8;
-  --color-ice: #EAF2FF;
+  --color-brand: var(--clinic-brand, #2563EB);
+  --color-brand-hover: var(--clinic-brand-hover, #1d4ed8);
+  --color-ice: var(--clinic-ice, #EAF2FF);
   --color-surface: #FFFFFF;
-  --color-ink: #171717;
-  --color-muted: #525252;
+  --color-ink: var(--clinic-ink, #171717);
+  --color-muted: var(--clinic-muted, #525252);
   --color-on-ice: #404040;
   --color-border: #E5E7EB;
   --color-on-dark: rgba(255, 255, 255, 0.72);

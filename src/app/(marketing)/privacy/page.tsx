@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteContainer } from "@/components/ui/container";
 import { site } from "@/config/site";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Dentora",
@@ -42,7 +43,7 @@ export default function PrivacyPage() {
                 1. Scope of Demonstration
               </h2>
               <p className="mt-4">
-                Dentora is an interactive prototype demonstrating the design, layout, and user experience of a modern dental clinic platform. Forms and interactive controls on this demonstration site are rendered for design evaluation and interface testing only.
+                {clinicConfig.identity.name} is an interactive prototype demonstrating the design, layout, and user experience of a modern dental clinic platform. Forms and interactive controls on this demonstration site are rendered for design evaluation and interface testing only.
               </p>
             </article>
 
@@ -75,7 +76,7 @@ export default function PrivacyPage() {
                 4. Production Architecture Commitment
               </h2>
               <p className="mt-4">
-                When Dentora transitions from demonstration to production clinic operations, the platform will adhere to applicable global healthcare regulations, including GDPR, HIPAA data safeguard standards, end-to-end encryption for electronic health records, and strict role-based access control for clinic personnel.
+                When {clinicConfig.identity.name} transitions from demonstration to production clinic operations, the platform will adhere to applicable global healthcare regulations, including GDPR, HIPAA data safeguard standards, end-to-end encryption for electronic health records, and strict role-based access control for clinic personnel.
               </p>
             </article>
 

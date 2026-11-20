@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Mail, MapPin, Clock, ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { site } from "@/config/site";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "Contact — Get in Touch",
@@ -80,9 +81,9 @@ export default function ContactPage() {
               </div>
               <h2 className="mt-6 text-xl font-medium tracking-tight text-black">Planned Clinic Hours</h2>
               <div className="mt-3 space-y-1 text-sm text-muted">
-                <p><span className="font-medium text-black">Mon – Thu:</span> 08:30 – 18:00</p>
-                <p><span className="font-medium text-black">Friday:</span> 08:30 – 16:30</p>
-                <p><span className="font-medium text-black">Sat – Sun:</span> Closed for private sterilisation</p>
+                {clinicConfig.scheduling.regularHours.map((h) => (
+                  <p key={h.label}><span className="font-medium text-black">{h.label}:</span> {h.hours}</p>
+                ))}
               </div>
               <p className="mt-4 text-xs text-muted/80">
                 Illustrative clinic operating timetable.

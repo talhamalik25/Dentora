@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { demoSpecialists } from "@/features/marketing/specialists";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "Specialists — Thoughtful Dental Care",
@@ -33,7 +34,7 @@ export default function SpecialistsPage() {
 
           {/* Prominent Demo Disclosure per instructions */}
           <div className="mt-8 max-w-2xl rounded-[var(--radius-card)] border border-brand/20 bg-ice p-5 text-xs leading-relaxed text-ink">
-            <span className="font-semibold text-brand">DEMO PROFILES</span> — Fictional names and example areas of care. Stock portraits depict models, not Dentora clinical staff. No credentials, certifications, or medical endorsements are implied.
+            <span className="font-semibold text-brand">DEMO PROFILES</span> — Fictional names and example areas of care. Stock portraits depict models, not {clinicConfig.identity.name} clinical staff. No credentials, certifications, or medical endorsements are implied.
           </div>
         </SiteContainer>
       </section>

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "About Dentora — Our Philosophy & Approach",
@@ -47,7 +48,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-on-ice">
-            At Dentora, we believe exceptional dental care begins with understanding people. Our approach brings together thoughtful care, modern techniques, and attention to every detail in an atmosphere designed to put you completely at ease.
+            At {clinicConfig.identity.name}, we believe exceptional dental care begins with understanding people. Our approach brings together thoughtful care, modern techniques, and attention to every detail in an atmosphere designed to put you completely at ease.
           </p>
 
           <div className="mt-6">
@@ -103,7 +104,7 @@ export default function AboutPage() {
               Core Principles
             </p>
             <h2 className="mt-3 text-[clamp(28px,3.8vw,48px)] font-semibold tracking-[-0.035em] text-black">
-              The Dentora Difference
+              The {clinicConfig.identity.name} Difference
             </h2>
             <p className="mt-4 text-base text-on-ice">
               Three guiding tenets that define how we imagine dental health should feel.

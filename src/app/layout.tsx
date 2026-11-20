@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import type { ReactNode, CSSProperties } from "react";
+import { clinicConfig } from "@/config/clinic.config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Dentora — Thoughtfully designed dental care", template: "%s | Dentora" },
-  description: "Discover a patient-focused dental care concept, designed around comfort, confidence, and long-term oral health. Demonstration website.",
+  title: {
+    default: clinicConfig.seo.defaultTitle,
+    template: clinicConfig.seo.titleTemplate,
+  },
+  description: clinicConfig.seo.description,
   openGraph: {
-    title: "Dentora — Thoughtfully designed dental care",
-    description: "Discover a patient-focused dental care concept, designed around comfort, confidence, and long-term oral health. Demonstration website.",
-    siteName: "Dentora",
+    title: clinicConfig.seo.defaultTitle,
+    description: clinicConfig.seo.description,
+    siteName: clinicConfig.identity.name,
     type: "website",
   },
   robots: {
@@ -18,10 +22,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const themeStyles = {
+    "--clinic-brand": clinicConfig.theme.brandColor,
+    "--clinic-brand-hover": clinicConfig.theme.brandHoverColor,
+    "--clinic-ice": clinicConfig.theme.iceColor,
+    "--clinic-ink": clinicConfig.theme.inkColor,
+    "--clinic-muted": clinicConfig.theme.mutedColor,
+  } as CSSProperties;
+
   return (
     <html
       lang="en"
       className="h-full antialiased"
+      style={themeStyles}
     >
       <body><a href="#main-content" className="skip-link">Skip to content</a>{children}</body>
     </html>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "Booking Policies — Dentora",
@@ -11,33 +12,33 @@ export const metadata: Metadata = {
 const policyRules = [
   {
     title: "Advance Scheduling Horizon",
-    rule: "Up to 60 days in advance",
-    description: "Patients may schedule appointments up to 60 calendar days ahead of time. This window ensures optimal clinical staffing and equipment readiness.",
+    rule: `Up to ${clinicConfig.scheduling.bookingMaxDaysAhead} days in advance`,
+    description: `Patients may schedule appointments up to ${clinicConfig.scheduling.bookingMaxDaysAhead} calendar days ahead of time. This window ensures optimal clinical staffing and equipment readiness.`,
   },
   {
     title: "Minimum Booking Notice",
-    rule: "2 hours prior to start time",
-    description: "To allow the clinical team adequate preparation for patient intake and sterilization protocols, appointments must be scheduled at least 2 hours before the start time.",
+    rule: `${clinicConfig.scheduling.bookingMinNoticeHours} hours prior to start time`,
+    description: `To allow the clinical team adequate preparation for patient intake and sterilization protocols, appointments must be scheduled at least ${clinicConfig.scheduling.bookingMinNoticeHours} hours before the start time.`,
   },
   {
     title: "Slot Intervals & Treatment Durations",
-    rule: "15-minute start intervals",
-    description: "Available appointment start times are offered in 15-minute intervals. Treatment durations vary based on the specific clinical procedure selected (e.g., 30 minutes for general care, 45 minutes for cosmetic, 60 minutes for restorative).",
+    rule: `${clinicConfig.scheduling.slotIntervalMinutes}-minute start intervals`,
+    description: `Available appointment start times are offered in ${clinicConfig.scheduling.slotIntervalMinutes}-minute intervals. Treatment durations vary based on the specific clinical procedure selected (e.g., 30 minutes for general care, 45 minutes for cosmetic, 60 minutes for restorative).`,
   },
   {
     title: "Cancellation & Rescheduling Cutoff",
-    rule: "12 hours advance notice",
-    description: "Patients may cancel or reschedule their appointment up to 12 hours before the scheduled time without penalty via their secure management link.",
+    rule: `${clinicConfig.scheduling.cancellationCutoffHours} hours advance notice`,
+    description: `Patients may cancel or reschedule their appointment up to ${clinicConfig.scheduling.cancellationCutoffHours} hours before the scheduled time without penalty via their secure management link.`,
   },
   {
     title: "Rescheduling Limits",
-    rule: "Maximum 2 patient-initiated reschedules",
-    description: "To maintain clinic availability for all patients, up to 2 self-service reschedules are permitted per booking. Further modifications require direct contact with the clinic reception desk.",
+    rule: `Maximum ${clinicConfig.scheduling.maxPatientReschedules} patient-initiated reschedules`,
+    description: `To maintain clinic availability for all patients, up to ${clinicConfig.scheduling.maxPatientReschedules} self-service reschedules are permitted per booking. Further modifications require direct contact with the clinic reception desk.`,
   },
   {
     title: "Guest Booking & Access",
     rule: "No account registration required",
-    description: "Dentora features friction-free guest booking. Appointments are verified through your email address, which receives a secure one-time token link to manage your booking.",
+    description: `${clinicConfig.identity.name} features friction-free guest booking. Appointments are verified through your email address, which receives a secure one-time token link to manage your booking.`,
   },
   {
     title: "Payment Policy",

@@ -4,6 +4,7 @@ import { SiteContainer } from "@/components/ui/container";
 import { FinaleMotion } from "@/components/marketing/finale-motion";
 import { Brand } from "./brand";
 import { site } from "@/config/site";
+import { clinicConfig } from "@/config/clinic.config";
 
 export function Footer() {
   return (
@@ -25,12 +26,12 @@ export function Footer() {
               <p className="mt-3 max-w-[300px] text-xs">Placeholder details. This is not an operating clinic.</p>
             </div>
           </div>
-          <div data-finale-reveal className="mt-16 mb-9 flex items-start justify-between gap-1 text-[clamp(54px,15.5vw,212px)] leading-[.88] font-bold tracking-[-.075em] md:mt-24" aria-label="Dentora">
-            <span aria-hidden="true">DENTORA</span><span aria-hidden="true" className="pt-[.12em] text-[.2em] tracking-normal text-brand">®</span>
+          <div data-finale-reveal className="mt-16 mb-9 flex items-start justify-between gap-1 text-[clamp(54px,15.5vw,212px)] leading-[.88] font-bold tracking-[-.075em] md:mt-24" aria-label={clinicConfig.identity.name}>
+            <span aria-hidden="true">{clinicConfig.identity.name.toUpperCase()}</span><span aria-hidden="true" className="pt-[.12em] text-[.2em] tracking-normal text-brand">®</span>
           </div>
           <div className="flex flex-col justify-between gap-4 border-t border-white/20 pt-6 text-xs leading-relaxed text-white/70 md:flex-row md:items-center">
             <div className="flex flex-wrap gap-x-5 gap-y-2">
-              <span>Dentora · A dental care concept</span>
+              <span>{clinicConfig.identity.name} · A dental care concept</span>
               {site.legal.map(item => (
                 <Link key={item.href} href={item.href} className="text-white/60 hover:text-white hover:underline underline-offset-4">
                   {item.label}

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { clinicConfig } from "@/config/clinic.config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://dentora-dusky.vercel.app";
+  const base = clinicConfig.seo.siteUrl;
   const now = new Date();
   return [
     { url: base, lastModified: now },

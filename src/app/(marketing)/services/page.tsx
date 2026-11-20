@@ -5,6 +5,7 @@ import { ArrowUpRight, Clock } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
 import { ButtonLink } from "@/components/ui/button";
 import { demoServices } from "@/features/marketing/services";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "Treatments & Dental Care Services — Dentora",
@@ -42,7 +43,7 @@ export default function ServicesPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-on-ice">
-            An illustrative introduction to the care categories envisioned for Dentora. Treatments, clinical suitability, and procedures are customized for each patient during dedicated consultations.
+            An illustrative introduction to the care categories envisioned for {clinicConfig.identity.name}. Treatments, clinical suitability, and procedures are customized for each patient during dedicated consultations.
           </p>
 
           <div className="mt-8 max-w-2xl rounded-[var(--radius-card)] border border-brand/20 bg-white p-5 text-xs leading-relaxed text-ink shadow-[0_4px_20px_rgba(0,0,0,0.03)]">

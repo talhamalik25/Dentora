@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SiteContainer } from "@/components/ui/container";
+import { clinicConfig } from "@/config/clinic.config";
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions — Dentora",
@@ -18,7 +19,7 @@ const faqSections = [
       },
       {
         q: "Will I need to create an account to book?",
-        a: "No. Dentora is planned with seamless guest booking so patients do not need to register a password or account. Secure one-time management links sent to your verified email will allow you to view or reschedule visits.",
+        a: `No. ${clinicConfig.identity.name} is planned with seamless guest booking so patients do not need to register a password or account. Secure one-time management links sent to your verified email will allow you to view or reschedule visits.`,
       },
       {
         q: "Will I be able to choose my dentist?",
@@ -26,7 +27,7 @@ const faqSections = [
       },
       {
         q: "How far in advance can appointments be scheduled?",
-        a: "The planned booking horizon is up to 60 days in advance, with a minimum required notice of 2 hours. Start times will be offered in 15-minute slot intervals.",
+        a: `The planned booking horizon is up to ${clinicConfig.scheduling.bookingMaxDaysAhead} days in advance, with a minimum required notice of ${clinicConfig.scheduling.bookingMinNoticeHours} hours. Start times will be offered in ${clinicConfig.scheduling.slotIntervalMinutes}-minute slot intervals.`,
       },
     ],
   },
@@ -35,7 +36,7 @@ const faqSections = [
     items: [
       {
         q: "What is the cancellation and rescheduling policy?",
-        a: "A 12-hour minimum notice cutoff is planned for cancellations and rescheduling. Patients will be able to perform up to 2 self-initiated reschedules via their secure management link.",
+        a: `A ${clinicConfig.scheduling.cancellationCutoffHours}-hour minimum notice cutoff is planned for cancellations and rescheduling. Patients will be able to perform up to ${clinicConfig.scheduling.maxPatientReschedules} self-initiated reschedules via their secure management link.`,
       },
       {
         q: "Will I need to pay online when booking?",
@@ -67,7 +68,7 @@ export default function FaqPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-on-ice">
-            Everything you need to know about how Dentora is envisioned to operate — from our appointment scheduling rules to clinic policies.
+            Everything you need to know about how {clinicConfig.identity.name} is envisioned to operate — from our appointment scheduling rules to clinic policies.
           </p>
 
           <div className="mt-8 max-w-2xl rounded-[var(--radius-card)] border border-brand/20 bg-white p-5 text-xs leading-relaxed text-ink shadow-[0_4px_20px_rgba(0,0,0,0.03)]">

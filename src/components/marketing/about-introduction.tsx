@@ -8,6 +8,7 @@ import { ArrowUpRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SiteContainer } from "@/components/ui/container";
+import { clinicConfig } from "@/config/clinic.config";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -203,7 +204,11 @@ export function AboutIntroduction() {
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-radial from-brand/10 via-transparent to-transparent opacity-80 blur-2xl"
               />
-              <AboutMolarCanvas scrollProgress={scrollProgress} />
+              {clinicConfig.features.enable3DToothExperience ? (
+                <AboutMolarCanvas scrollProgress={scrollProgress} />
+              ) : (
+                <StaticMolarFallback />
+              )}
             </div>
           </div>
 

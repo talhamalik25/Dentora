@@ -1,5 +1,7 @@
+import { clinicConfig } from "./clinic.config";
+
 export const site = {
-  name: "Dentora",
+  name: clinicConfig.identity.name,
   navigation: [
     { label: "About", href: "/about" },
     { label: "Services", href: "/services" },
@@ -11,5 +13,8 @@ export const site = {
     { label: "Booking Policies", href: "/booking-policies" },
     { label: "FAQ", href: "/faq" },
   ],
-  demoContact: { email: "hello@dentora.example", address: "123 Example Avenue, Demo City" },
+  demoContact: {
+    email: clinicConfig.contact.email,
+    address: clinicConfig.contact.address.fullDisplay,
+  },
 } as const;

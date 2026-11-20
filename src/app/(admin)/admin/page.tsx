@@ -40,8 +40,8 @@ export default function AdminWorkspacePage() {
   const [loadingUser, setLoadingUser] = useState(true);
 
   // Login form state
-  const [emailInput, setEmailInput] = useState("admin@dentora.example");
-  const [passwordInput, setPasswordInput] = useState("admin123");
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loggingIn, setLoggingIn] = useState(false);
 
@@ -228,15 +228,6 @@ export default function AdminWorkspacePage() {
             <Button type="submit" disabled={loggingIn} className="w-full">
               {loggingIn ? "Signing in..." : "Sign In to Workspace"}
             </Button>
-
-            <div className="rounded-[var(--radius-card)] border border-brand/20 bg-ice p-3 text-[11px] text-on-ice">
-              <strong>Evaluation Credentials:</strong>
-              <div className="mt-1 font-mono">
-                Email: <code>admin@dentora.example</code>
-                <br />
-                Password: <code>admin123</code>
-              </div>
-            </div>
           </form>
         </div>
       </main>

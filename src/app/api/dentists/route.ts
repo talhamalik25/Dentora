@@ -54,7 +54,10 @@ export async function GET(request: NextRequest) {
         portraitAlt: s.portraitAlt,
       })),
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if ((error as { digest?: string })?.digest === "NEXT_PRERENDER_INTERRUPTED") {
+      throw error;
+    }
     console.error("Dentists API error:", error);
     return NextResponse.json({
       success: true,

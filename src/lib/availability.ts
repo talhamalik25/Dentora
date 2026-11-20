@@ -1,8 +1,8 @@
 import { connectToDatabase } from "./db";
 import { ScheduleModel } from "@/models/Schedule";
-import { AppointmentModel } from "@/models/Appointment";
 import { ServiceModel } from "@/models/Service";
 import { DentistModel } from "@/models/Dentist";
+import { SlotOccupancyModel } from "@/models/SlotOccupancy";
 import { demoServices } from "@/features/marketing/services";
 import { demoSpecialists } from "@/features/marketing/specialists";
 
@@ -16,7 +16,41 @@ export interface AvailableSlot {
 }
 
 /**
+ * Calculates all 15-minute slot units occupied by an appointment,
+ * including treatment duration and post-procedure sterilization buffers.
+ */
+export function computeOccupancySlotUnits(
+  startUtc: Date,
+  durationMinutes: number,
+  bufferMinutes: number = 0,
+  intervalMinutes: number = 15
+): { slotUtc: Date; isBuffer: boolean }[] {
+  const units: { slotUtc: Date; isBuffer: boolean }[] = [];
+  const totalMinutes = durationMinutes + bufferMinutes;
+  let currentMs = startUtc.getTime();
+  const endTreatmentMs = currentMs + durationMinutes * 60 * 1000;
+  const totalEndMs = currentMs + totalMinutes * 60 * 1000;
+
+  while (currentMs < totalEndMs) {
+    units.push({
+      slotUtc: new Date(currentMs),
+      isBuffer: currentMs >= endTreatmentMs,
+    });
+    currentMs += intervalMinutes * 60 * 1000;
+  }
+
+  return units;
+}
+
+/**
  * Calculates available appointment slots for a given date, service, and dentist.
+ * Enforces:
+ * - 2-hour minimum advance notice
+ * - 60-day maximum advance booking horizon
+ * - Full treatment duration availability
+ * - Pre/post sterilization buffers
+ * - Dentist working shift intervals and exception leaves
+ * - Slot occupancy locks preventing overlapping collisions
  */
 export async function getAvailableSlots(params: {
   date: string; // "YYYY-MM-DD"
@@ -44,40 +78,42 @@ export async function getAvailableSlots(params: {
     return []; // Beyond 60-day horizon
   }
 
-  // Determine duration
+  // Determine duration and buffers
   let durationMinutes = 30;
+  let bufferAfterMinutes = 10;
+
   const staticService = demoServices.find((s) => s.id === serviceId);
   if (staticService) {
     durationMinutes = staticService.durationMinutes;
   }
 
   const db = await connectToDatabase();
-  if (db) {
-    const sDoc = await ServiceModel.findOne({ slug: serviceId }).lean();
-    if (sDoc) {
-      durationMinutes = sDoc.durationMinutes;
-    }
+  if (!db) {
+    throw new Error("Database service unavailable. Real-time slot availability cannot be determined.");
+  }
+
+  const sDoc = await ServiceModel.findOne({ slug: serviceId }).lean();
+  if (sDoc) {
+    durationMinutes = sDoc.durationMinutes;
+    bufferAfterMinutes = sDoc.bufferAfterMinutes || 0;
   }
 
   // Determine target dentists
   const targetDentistIds: string[] = [];
   if (dentistId && dentistId !== "any") {
     targetDentistIds.push(dentistId);
-  } else if (db) {
+  } else {
     const allDentists = await DentistModel.find({ active: true }).lean();
     if (allDentists.length > 0) {
       allDentists.forEach((d) => targetDentistIds.push(String(d._id)));
     } else {
       demoSpecialists.forEach((s) => targetDentistIds.push(s.id));
     }
-  } else {
-    demoSpecialists.forEach((s) => targetDentistIds.push(s.id));
   }
 
   const slots: AvailableSlot[] = [];
   const dayOfWeek = targetDate.getUTCDay();
 
-  // If DB is connected, fetch schedules and appointments
   for (const dId of targetDentistIds) {
     const dentistObj = demoSpecialists.find((s) => s.id === dId);
     const dentistName = dentistObj ? dentistObj.name : "Dentist";
@@ -102,23 +138,19 @@ export async function getAvailableSlots(params: {
       continue;
     }
 
-    // Fetch existing appointments for this dentist on this day
+    // Fetch existing occupied slot units for this dentist on this day
     const dayStart = new Date(`${date}T00:00:00.000Z`);
     const dayEnd = new Date(`${date}T23:59:59.999Z`);
 
-    const existingAppointments: { startsAtUtc: Date; endsAtUtc: Date }[] = [];
+    const occupiedSlotsSet = new Set<number>();
     if (db) {
-      const appts = await AppointmentModel.find({
+      const occupancies = await SlotOccupancyModel.find({
         dentistId: dId,
-        status: { $in: ["confirmed", "pending"] },
-        startsAtUtc: { $gte: dayStart, $lte: dayEnd },
+        slotUtc: { $gte: dayStart, $lte: dayEnd },
       }).lean();
 
-      appts.forEach((a) => {
-        existingAppointments.push({
-          startsAtUtc: new Date(a.startsAtUtc),
-          endsAtUtc: new Date(a.endsAtUtc),
-        });
+      occupancies.forEach((occ) => {
+        occupiedSlotsSet.add(new Date(occ.slotUtc).getTime());
       });
     }
 
@@ -136,19 +168,22 @@ export async function getAvailableSlots(params: {
       let currentSlotStart = new Date(intervalStartTime);
 
       while (currentSlotStart.getTime() + durationMinutes * 60 * 1000 <= intervalEndTime.getTime()) {
-        const slotEnd = new Date(currentSlotStart.getTime() + durationMinutes * 60 * 1000);
-
-        // Check min notice (at least 2 hours in future)
+        // Check minimum notice (at least 2 hours in future)
         if (currentSlotStart.getTime() - now.getTime() >= minNoticeMs) {
-          // Check collision with existing appointments
-          const hasCollision = existingAppointments.some((appt) => {
-            return (
-              currentSlotStart.getTime() < appt.endsAtUtc.getTime() &&
-              slotEnd.getTime() > appt.startsAtUtc.getTime()
-            );
-          });
+          // Compute all slot units required for this candidate appointment (duration + buffer)
+          const neededUnits = computeOccupancySlotUnits(
+            currentSlotStart,
+            durationMinutes,
+            bufferAfterMinutes,
+            15
+          );
 
-          if (!hasCollision) {
+          // Verify NONE of the required slot units are already occupied
+          const hasConflict = neededUnits.some((unit) =>
+            occupiedSlotsSet.has(unit.slotUtc.getTime())
+          );
+
+          if (!hasConflict) {
             const h = currentSlotStart.getUTCHours();
             const m = currentSlotStart.getUTCMinutes();
             const ampm = h >= 12 ? "PM" : "AM";

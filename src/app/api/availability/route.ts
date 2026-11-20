@@ -25,11 +25,21 @@ export async function GET(request: NextRequest) {
       success: true,
       data: slots,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if ((error as { digest?: string })?.digest === "NEXT_PRERENDER_INTERRUPTED") {
+      throw error;
+    }
     console.error("Availability API error:", error);
+    const err = error as Error;
+    const isDbUnavailable = err?.message?.includes("Database service unavailable");
     return NextResponse.json(
-      { success: false, error: "Failed to calculate availability." },
-      { status: 500 }
+      {
+        success: false,
+        error: isDbUnavailable
+          ? "Database unavailable. Real-time slot availability cannot be determined."
+          : "Failed to calculate availability.",
+      },
+      { status: isDbUnavailable ? 503 : 500 }
     );
   }
 }

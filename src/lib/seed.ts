@@ -4,13 +4,15 @@ import { DentistModel } from "@/models/Dentist";
 import { ScheduleModel } from "@/models/Schedule";
 import { ClinicSettingsModel } from "@/models/ClinicSettings";
 import { UserModel } from "@/models/User";
+import { hashPassword } from "./auth";
 import { demoServices } from "@/features/marketing/services";
 import { demoSpecialists } from "@/features/marketing/specialists";
 import { clinicConfig } from "@/config/clinic.config";
 
 /**
  * Ensures the database contains baseline clinic configuration,
- * services, dentists, and default schedules. Safe to call idempotently.
+ * services, dentists, and default schedules.
+ * In production, default administrative accounts are NEVER automatically created.
  */
 export async function ensureDatabaseSeeded() {
   const db = await connectToDatabase();
@@ -72,7 +74,7 @@ export async function ensureDatabaseSeeded() {
         displayOrder: i + 1,
       });
 
-      // Also create a default weekly schedule for each dentist (Mon-Fri 09:00 - 17:00)
+      // Default weekly schedule (Mon-Fri 09:00 - 17:00)
       const existingSchedule = await ScheduleModel.findOne({ dentistId: sp.id });
       if (!existingSchedule) {
         await ScheduleModel.create({
@@ -88,18 +90,53 @@ export async function ensureDatabaseSeeded() {
     }
   }
 
-  // 4. Seed Default Admin User if none exist (Password: admin123)
-  const userCount = await UserModel.countDocuments();
-  if (userCount === 0) {
-    await UserModel.create({
-      email: "admin@dentora.example",
-      // Demo hash for "admin123" using simple sha256 hex for development baseline
-      passwordHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
-      name: "Clinic Administrator",
-      role: "admin",
-      active: true,
-    });
+  // 4. Default Admin User:
+  // Strictly disallowed in production. In non-production only, seed demo account with Argon2id hash.
+  if (process.env.NODE_ENV !== "production") {
+    const userCount = await UserModel.countDocuments();
+    if (userCount === 0) {
+      const argonHash = await hashPassword("admin123");
+      await UserModel.create({
+        email: "admin@dentora.example",
+        passwordHash: argonHash,
+        name: "Clinic Administrator (Development)",
+        role: "admin",
+        active: true,
+      });
+    }
   }
 
   return true;
+}
+
+/**
+ * Explicit administrator provisioning utility for production environments.
+ */
+export async function provisionAdminUser(params: {
+  email: string;
+  password: string;
+  name: string;
+  role?: "admin" | "receptionist" | "dentist";
+}) {
+  const db = await connectToDatabase();
+  if (!db) {
+    throw new Error("Cannot provision user: Database connection is not available.");
+  }
+
+  const cleanEmail = params.email.toLowerCase().trim();
+  const existing = await UserModel.findOne({ email: cleanEmail });
+  if (existing) {
+    throw new Error(`User with email ${cleanEmail} already exists.`);
+  }
+
+  const passwordHash = await hashPassword(params.password);
+  const user = await UserModel.create({
+    email: cleanEmail,
+    passwordHash,
+    name: params.name.trim(),
+    role: params.role || "admin",
+    active: true,
+  });
+
+  return { id: String(user._id), email: user.email, name: user.name, role: user.role };
 }

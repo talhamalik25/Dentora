@@ -32,6 +32,7 @@ interface ConfirmationData {
   startsAtUtc: string;
   patientName: string;
   patientEmail: string;
+  manageUrl?: string;
 }
 
 export default function BookingPage() {
@@ -538,6 +539,17 @@ export default function BookingPage() {
                     <strong>Status:</strong> <span className="capitalize text-green-700 font-semibold">{confirmation.status}</span>
                   </p>
                 </div>
+
+                {confirmation.manageUrl && (
+                  <div className="mt-4 border-t border-black/10 pt-3 text-center">
+                    <Link
+                      href={confirmation.manageUrl}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
+                    >
+                      Need to reschedule or cancel? Manage appointment &rarr;
+                    </Link>
+                  </div>
+                )}
               </div>
 
               <div className="mt-8 flex justify-center gap-4">

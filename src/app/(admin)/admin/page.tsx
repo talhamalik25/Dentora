@@ -1,43 +1,35 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import {
   ShieldCheck,
-  Calendar,
-  Users,
-  CheckCircle,
+  CalendarDays,
+  CalendarCheck2,
+  CheckCircle2,
   XCircle,
-  LogOut,
+  PlusCircle,
   RefreshCw,
-  Search,
+  Clock,
+  Sparkles,
 } from "lucide-react";
-import { SiteContainer } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { clinicConfig } from "@/config/clinic.config";
-
-interface StaffUser {
-  email: string;
-  name: string;
-  role: string;
-}
-
-interface AppointmentRecord {
-  id: string;
-  reference: string;
-  patientName: string;
-  patientEmail: string;
-  patientPhone: string;
-  dentistName: string;
-  serviceName: string;
-  startsAtUtc: string;
-  endsAtUtc: string;
-  status: "confirmed" | "completed" | "no-show" | "cancelled";
-  createdAt: string;
-}
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { MetricCard } from "@/components/dashboard/metric-card";
+import { AppointmentActivity } from "@/components/dashboard/appointment-activity";
+import {
+  AppointmentPreview,
+  type AppointmentRecord,
+} from "@/components/dashboard/appointment-preview";
+import type { StaffUser } from "@/components/dashboard/dashboard-sidebar";
 
 export default function AdminWorkspacePage() {
   const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+
+  // Active navigation tab
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Login form state
   const [emailInput, setEmailInput] = useState("");
@@ -144,7 +136,10 @@ export default function AdminWorkspacePage() {
   }
 
   // Handle Status Update
-  async function handleStatusChange(id: string, newStatus: "completed" | "no-show" | "cancelled") {
+  async function handleStatusChange(
+    id: string,
+    newStatus: "completed" | "no-show" | "cancelled"
+  ) {
     setActionLoadingId(id);
     try {
       const res = await fetch(`/api/admin/appointments/${id}`, {
@@ -163,311 +158,301 @@ export default function AdminWorkspacePage() {
     }
   }
 
+  const [greeting, setGreeting] = useState("Welcome");
+  const [todayUtc, setTodayUtc] = useState("");
+
+  // Defer date reads into client effect to comply with Next.js 16 prerender rules
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good morning");
+    else if (hour < 17) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+
+    setTodayUtc(new Date().toISOString().split("T")[0]);
+  }, []);
+
+  // Compute KPIs from real backend appointments data
+  const metrics = useMemo(() => {
+    const todayCount = appointments.filter((a) => {
+      return todayUtc ? a.startsAtUtc.split("T")[0] === todayUtc && a.status !== "cancelled" : false;
+    }).length;
+
+    const upcomingCount = appointments.filter((a) => a.status === "confirmed").length;
+    const completedCount = appointments.filter((a) => a.status === "completed").length;
+    const cancelledCount = appointments.filter((a) => a.status === "cancelled").length;
+
+    return {
+      todayCount,
+      upcomingCount,
+      completedCount,
+      cancelledCount,
+    };
+  }, [appointments, todayUtc]);
+
+  // Loading initial user session
   if (loadingUser) {
     return (
-      <main className="min-h-screen bg-ice flex items-center justify-center p-6">
-        <div className="text-sm font-medium text-muted">Checking clinic workspace credentials...</div>
+      <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
+        <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-muted">
+          <Clock size={16} className="animate-spin text-brand" />
+          <span>Verifying clinic workspace credentials...</span>
+        </div>
       </main>
     );
   }
 
-  // ── VIEW 1: Staff Login ──
+  // ── VIEW 1: Unauthenticated Staff Login ──
   if (!currentUser) {
     return (
-      <main className="min-h-[85vh] bg-ice flex items-center justify-center py-16 px-5">
+      <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center py-16 px-5">
         <div className="w-full max-w-md rounded-[var(--radius-panel)] border border-border bg-white p-8 shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
-          <div className="flex items-center gap-2.5 text-brand">
-            <ShieldCheck size={26} />
-            <span className="text-xs font-semibold uppercase tracking-widest">
-              Staff Workspace
+          <div className="flex items-center gap-2 text-brand">
+            <ShieldCheck size={24} />
+            <span className="text-xs font-bold uppercase tracking-widest">
+              Staff Portal
             </span>
           </div>
 
           <h1 className="mt-3 text-2xl font-bold tracking-tight text-black">
-            {clinicConfig.identity.name} Dashboard
+            {clinicConfig.identity.name} Workspace
           </h1>
           <p className="mt-1 text-xs text-muted">
-            Sign in with authorized receptionist or clinic admin credentials.
+            Sign in with authorized receptionist, dentist, or clinic administrator credentials.
           </p>
 
           <form onSubmit={handleLogin} className="mt-6 space-y-4">
             {loginError && (
-              <div className="rounded-[var(--radius-card)] bg-red-50 p-3 text-xs text-red-700">
+              <div className="rounded-[var(--radius-card)] border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 font-medium">
                 {loginError}
               </div>
             )}
 
             <div>
-              <label htmlFor="staff-email" className="block text-xs font-semibold text-black">
+              <label
+                htmlFor="staff-email"
+                className="block text-xs font-semibold text-black uppercase tracking-wider"
+              >
                 Staff Email
               </label>
               <input
                 id="staff-email"
                 type="email"
                 required
+                placeholder="staff@dentora.example"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className="mt-1 w-full rounded-[var(--radius-card)] border border-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none"
+                className="mt-1.5 w-full rounded-[var(--radius-card)] border border-border px-4 py-2.5 text-xs text-black placeholder:text-muted focus:border-brand focus:outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label htmlFor="staff-password" className="block text-xs font-semibold text-black">
+              <label
+                htmlFor="staff-password"
+                className="block text-xs font-semibold text-black uppercase tracking-wider"
+              >
                 Password
               </label>
               <input
                 id="staff-password"
                 type="password"
                 required
+                placeholder="••••••••••••"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                className="mt-1 w-full rounded-[var(--radius-card)] border border-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none"
+                className="mt-1.5 w-full rounded-[var(--radius-card)] border border-border px-4 py-2.5 text-xs text-black placeholder:text-muted focus:border-brand focus:outline-none transition-colors"
               />
             </div>
 
-            <Button type="submit" disabled={loggingIn} className="w-full">
-              {loggingIn ? "Signing in..." : "Sign In to Workspace"}
+            <Button
+              type="submit"
+              disabled={loggingIn}
+              className="w-full mt-2"
+            >
+              {loggingIn ? "Verifying Credentials..." : "Access Workspace"}
             </Button>
           </form>
+
+          <div className="mt-8 border-t border-border pt-4 text-center">
+            <Link
+              href="/"
+              className="text-[11px] font-medium text-muted hover:text-black transition-colors"
+            >
+              &larr; Return to {clinicConfig.identity.name} Website
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
 
-  // Filtered list
-  const filteredList = appointments.filter((a) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      a.reference.toLowerCase().includes(q) ||
-      a.patientName.toLowerCase().includes(q) ||
-      a.dentistName.toLowerCase().includes(q) ||
-      a.serviceName.toLowerCase().includes(q)
-    );
-  });
-
-  const totalCount = appointments.length;
-  const confirmedCount = appointments.filter((a) => a.status === "confirmed").length;
-  const completedCount = appointments.filter((a) => a.status === "completed").length;
-  const cancelledCount = appointments.filter((a) => a.status === "cancelled").length;
-
-  // ── VIEW 2: Authenticated Clinic Dashboard ──
+  // ── VIEW 2: Authenticated Dashboard Shell ──
   return (
-    <main className="min-h-screen bg-ice/40 pb-24">
-      {/* ── Top Workspace Bar ── */}
-      <header className="border-b border-border bg-white sticky top-0 z-30 shadow-xs">
-        <SiteContainer className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-lg tracking-tight text-black">
-              {clinicConfig.identity.name}
-            </span>
-            <span className="rounded-full bg-ice px-2.5 py-0.5 text-[11px] font-semibold text-brand">
-              Clinic Workspace
-            </span>
+    <DashboardShell
+      currentUser={currentUser}
+      onLogout={handleLogout}
+      title={activeTab === "appointments" ? "Clinic Appointments" : "Clinic Overview"}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {/* ── Welcome Area ── */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-[var(--radius-panel)] border border-border bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-ice px-3 py-1 text-[11px] font-semibold text-brand mb-2">
+            <Sparkles size={13} />
+            <span>Operational Workspace</span>
           </div>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:block text-right">
-              <p className="text-xs font-semibold text-black">{currentUser.name}</p>
-              <p className="text-[10px] text-muted capitalize">{currentUser.role}</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5 text-xs font-medium text-black hover:bg-ice transition-colors cursor-pointer"
-            >
-              <LogOut size={14} />
-              <span>Sign Out</span>
-            </button>
-          </div>
-        </SiteContainer>
-      </header>
-
-      <SiteContainer className="mt-8 space-y-8">
-        {/* ── KPI Blocks ── */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-[var(--radius-panel)] border border-border bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between text-muted">
-              <span className="text-xs font-semibold uppercase tracking-wider">Total Bookings</span>
-              <Users size={18} className="text-brand" />
-            </div>
-            <p className="mt-3 text-3xl font-extrabold text-black tabular-nums">{totalCount}</p>
-          </div>
-
-          <div className="rounded-[var(--radius-panel)] border border-border bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between text-muted">
-              <span className="text-xs font-semibold uppercase tracking-wider">Upcoming / Active</span>
-              <Calendar size={18} className="text-brand" />
-            </div>
-            <p className="mt-3 text-3xl font-extrabold text-brand tabular-nums">{confirmedCount}</p>
-          </div>
-
-          <div className="rounded-[var(--radius-panel)] border border-border bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between text-muted">
-              <span className="text-xs font-semibold uppercase tracking-wider">Completed Care</span>
-              <CheckCircle size={18} className="text-green-600" />
-            </div>
-            <p className="mt-3 text-3xl font-extrabold text-green-700 tabular-nums">{completedCount}</p>
-          </div>
-
-          <div className="rounded-[var(--radius-panel)] border border-border bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between text-muted">
-              <span className="text-xs font-semibold uppercase tracking-wider">Cancelled</span>
-              <XCircle size={18} className="text-rose-500" />
-            </div>
-            <p className="mt-3 text-3xl font-extrabold text-rose-600 tabular-nums">{cancelledCount}</p>
-          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-black sm:text-3xl">
+            {greeting}, {currentUser.name.split(" ")[0]}
+          </h2>
+          <p className="mt-1 text-xs text-muted sm:text-sm">
+            Here&apos;s what&apos;s happening at your clinic today across schedules and appointments.
+          </p>
         </div>
 
-        {/* ── Management Table Section ── */}
-        <div className="rounded-[var(--radius-panel)] border border-border bg-white p-6 shadow-sm">
-          {/* Controls Header */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
-            <div>
-              <h2 className="text-xl font-bold tracking-tight text-black">Appointments Roster</h2>
-              <p className="text-xs text-muted">Manage patient bookings, mark completions, or process schedule changes.</p>
-            </div>
+        {/* Quick Actions */}
+        <div className="flex flex-wrap items-center gap-2.5 pt-2 sm:pt-0">
+          <Link
+            href="/book"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white hover:bg-brand-hover transition-colors shadow-xs"
+          >
+            <PlusCircle size={14} />
+            <span>Book Patient Visit</span>
+          </Link>
+          <button
+            type="button"
+            onClick={loadAppointments}
+            title="Refresh appointments"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-2 text-xs font-semibold text-black hover:bg-ice transition-colors cursor-pointer"
+          >
+            <RefreshCw size={13} className={loadingAppts ? "animate-spin text-brand" : ""} />
+            <span>Sync</span>
+          </button>
+        </div>
+      </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Status Tabs */}
-              <div className="flex rounded-full bg-ice p-1 text-xs">
-                {["all", "confirmed", "completed", "cancelled"].map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => setStatusFilter(st)}
-                    className={`rounded-full px-3 py-1 font-semibold capitalize transition-colors cursor-pointer ${
-                      statusFilter === st ? "bg-brand text-white shadow-xs" : "text-on-ice hover:text-black"
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
-              </div>
+      {/* ── KPI Metrics Grid ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Today's Appointments"
+          value={metrics.todayCount}
+          scope="Scheduled for current clinic date (UTC)"
+          icon={<Clock size={18} />}
+          iconVariant="brand"
+          loading={loadingAppts}
+        />
 
-              <button
-                type="button"
-                onClick={loadAppointments}
-                aria-label="Refresh appointments"
-                className="grid size-8 place-items-center rounded-full border border-border text-black hover:bg-ice transition-colors cursor-pointer"
-              >
-                <RefreshCw size={14} className={loadingAppts ? "animate-spin" : ""} />
-              </button>
-            </div>
-          </div>
+        <MetricCard
+          label="Upcoming Appointments"
+          value={metrics.upcomingCount}
+          scope="Confirmed and active in roster"
+          icon={<CalendarDays size={18} />}
+          iconVariant="brand"
+          loading={loadingAppts}
+        />
 
-          {/* Search Bar */}
-          <div className="mt-5 relative max-w-sm">
-            <Search size={16} className="absolute left-3 top-3 text-muted" />
-            <input
-              type="text"
-              placeholder="Search reference, patient, dentist..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-border pl-9 pr-4 py-2 text-xs focus:border-brand focus:outline-none"
+        <MetricCard
+          label="Completed Visits"
+          value={metrics.completedCount}
+          scope="Total care rendered and verified"
+          icon={<CheckCircle2 size={18} />}
+          iconVariant="green"
+          loading={loadingAppts}
+        />
+
+        <MetricCard
+          label="Cancelled Appointments"
+          value={metrics.cancelledCount}
+          scope="Patient or administrative cancellations"
+          icon={<XCircle size={18} />}
+          iconVariant="rose"
+          loading={loadingAppts}
+        />
+      </div>
+
+      {/* ── Analytics & Activity Row (Shown on Overview tab) ── */}
+      {activeTab === "overview" && (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <AppointmentActivity
+              appointments={appointments}
+              loading={loadingAppts}
             />
           </div>
 
-          {/* Table */}
-          <div className="mt-6 overflow-x-auto">
-            {loadingAppts ? (
-              <div className="py-12 text-center text-sm text-muted">Loading clinic appointments...</div>
-            ) : filteredList.length === 0 ? (
-              <div className="py-12 text-center text-sm text-muted">
-                No appointment records matching your criteria.
+          {/* Quick Clinic Operations Card */}
+          <div className="rounded-[var(--radius-panel)] border border-border bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-black">
+                  Clinic Configuration
+                </span>
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                  Ready
+                </span>
               </div>
-            ) : (
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-border text-muted uppercase tracking-wider text-[10px]">
-                    <th className="py-3 px-3">Reference</th>
-                    <th className="py-3 px-3">Patient</th>
-                    <th className="py-3 px-3">Treatment</th>
-                    <th className="py-3 px-3">Specialist</th>
-                    <th className="py-3 px-3">Schedule (UTC)</th>
-                    <th className="py-3 px-3">Status</th>
-                    <th className="py-3 px-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredList.map((item) => (
-                    <tr key={item.id} className="hover:bg-ice/30 transition-colors">
-                      <td className="py-3.5 px-3 font-mono font-bold text-brand">
-                        {item.reference}
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <p className="font-semibold text-black">{item.patientName}</p>
-                        <p className="text-[11px] text-muted">{item.patientEmail}</p>
-                      </td>
-                      <td className="py-3.5 px-3 font-medium text-black">
-                        {item.serviceName}
-                      </td>
-                      <td className="py-3.5 px-3 text-muted">
-                        {item.dentistName}
-                      </td>
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        <p className="font-medium text-black">
-                          {new Date(item.startsAtUtc).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </p>
-                        <p className="text-[11px] text-muted">
-                          {new Date(item.startsAtUtc).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <span
-                          className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold capitalize ${
-                            item.status === "confirmed"
-                              ? "bg-blue-100 text-blue-700"
-                              : item.status === "completed"
-                              ? "bg-green-100 text-green-700"
-                              : item.status === "cancelled"
-                              ? "bg-rose-100 text-rose-700"
-                              : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-right whitespace-nowrap">
-                        {item.status === "confirmed" && (
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              disabled={actionLoadingId === item.id}
-                              onClick={() => handleStatusChange(item.id, "completed")}
-                              className="rounded-full bg-green-50 px-2.5 py-1 text-[10px] font-semibold text-green-700 hover:bg-green-100 transition-colors cursor-pointer disabled:opacity-50"
-                            >
-                              Complete
-                            </button>
-                            <button
-                              type="button"
-                              disabled={actionLoadingId === item.id}
-                              onClick={() => handleStatusChange(item.id, "cancelled")}
-                              className="rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-semibold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer disabled:opacity-50"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        )}
-                        {item.status !== "confirmed" && (
-                          <span className="text-[10px] text-muted">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+
+              <div className="mt-4 space-y-3 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted">Primary Timezone:</span>
+                  <span className="font-mono font-semibold text-black">
+                    {clinicConfig.scheduling.timezone}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted">Slot Discretization:</span>
+                  <span className="font-mono font-semibold text-black">
+                    {clinicConfig.scheduling.slotIntervalMinutes} mins
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted">Advance Booking:</span>
+                  <span className="font-semibold text-black">
+                    {clinicConfig.scheduling.bookingMaxDaysAhead} days max
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted">Cancellation Notice:</span>
+                  <span className="font-semibold text-black">
+                    {clinicConfig.scheduling.cancellationCutoffHours}h cutoff
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted">Reschedule Allowance:</span>
+                  <span className="font-semibold text-black">
+                    {clinicConfig.scheduling.maxPatientReschedules} max per visit
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 border-t border-border pt-4">
+              <Button
+                variant="secondary"
+                onClick={() => setActiveTab("appointments")}
+                className="w-full text-xs min-h-[40px]"
+              >
+                <CalendarCheck2 size={14} className="mr-2" />
+                View Full Appointment Roster
+              </Button>
+            </div>
           </div>
         </div>
-      </SiteContainer>
-    </main>
+      )}
+
+      {/* ── Appointment Roster & Management Table ── */}
+      <AppointmentPreview
+        appointments={appointments}
+        loading={loadingAppts}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        onRefresh={loadAppointments}
+        onStatusChange={handleStatusChange}
+        actionLoadingId={actionLoadingId}
+      />
+    </DashboardShell>
   );
 }

@@ -19,7 +19,7 @@ export function ClinicExperience() {
             className="pointer-events-none absolute inset-x-0 top-0 z-20 flex w-full items-center justify-between border-b border-black/10 px-5 py-4 sm:px-8 md:px-12 md:py-5 lg:px-16 motion-reduce:hidden"
           >
             <p className="text-xs font-semibold uppercase tracking-[.14em] text-black">
-              04 / The Dentora Experience
+              06 / The Dentora Experience
             </p>
             <span className="text-xs text-muted">
               A space to feel at ease
@@ -70,7 +70,7 @@ export function ClinicExperience() {
                     className="size-2 rounded-full bg-brand"
                     aria-hidden="true"
                   />
-                  04 / The Dentora Experience
+                  06 / The Dentora Experience
                 </p>
 
                 <h2

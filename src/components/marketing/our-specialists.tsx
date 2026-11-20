@@ -6,7 +6,7 @@ export function OurSpecialists() {
   return (
     <section id="specialists" aria-labelledby="specialists-heading" className="bg-white py-20 text-black md:py-24 lg:py-32">
       <SiteContainer>
-        <p className="border-b border-black/10 pb-6 text-xs font-semibold uppercase tracking-[.12em]">03 / Our Specialists</p>
+        <p className="border-b border-black/10 pb-6 text-xs font-semibold uppercase tracking-[.12em]">05 / Our Specialists</p>
         <div className="grid gap-6 py-8 md:grid-cols-[1.5fr_1fr] md:items-end md:gap-12 md:py-12 lg:pb-16">
           <h2 id="specialists-heading" className="max-w-[750px] text-[clamp(38px,5.6vw,80px)] leading-[1.03] font-semibold tracking-[-.055em]">
             The people behind<br />every smile.

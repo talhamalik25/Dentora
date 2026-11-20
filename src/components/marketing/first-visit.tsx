@@ -15,7 +15,7 @@ export function FirstVisit() {
     <FirstVisitMotion>
       <SiteContainer className="grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-20 xl:gap-28">
         <header data-visit-heading className="min-w-0 lg:sticky lg:top-32 [@media(max-height:600px)]:static">
-          <p className="mb-6 text-xs font-semibold uppercase tracking-[.12em] text-muted">05 / Your first visit</p>
+          <p className="mb-6 text-xs font-semibold uppercase tracking-[.12em] text-muted">07 / Your first visit</p>
           <h2 id="first-visit-heading" className="text-[clamp(38px,5vw,72px)] leading-[1.04] font-semibold tracking-[-.055em] text-black">
             Your first visit,<br /><span className="text-brand">made simple.</span>
           </h2>

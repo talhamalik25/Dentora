@@ -55,10 +55,8 @@ export function AboutIntroduction() {
       const media = gsap.matchMedia();
 
       media.add("(prefers-reduced-motion: no-preference)", () => {
-        let observer: IntersectionObserver | undefined;
-
         // Reveal editorial typography when section enters viewport
-        observer = new IntersectionObserver(
+        const observer = new IntersectionObserver(
           ([entry]) => {
             if (entry.isIntersecting) {
               const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
@@ -99,7 +97,7 @@ export function AboutIntroduction() {
                   "-=0.45"
                 );
 
-              observer?.disconnect();
+              observer.disconnect();
             }
           },
           { threshold: 0.12 }
@@ -128,7 +126,7 @@ export function AboutIntroduction() {
           );
         }
 
-        return () => observer?.disconnect();
+        return () => observer.disconnect();
       });
     }, sectionRef);
 
@@ -169,7 +167,7 @@ export function AboutIntroduction() {
               className="flex items-center gap-3.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.24em] text-brand"
             >
               <span className="h-px w-7 bg-brand/50" aria-hidden="true" />
-              01 / OUR PHILOSOPHY
+              02 / OUR PHILOSOPHY
             </div>
 
             {/* Thin Horizontal Divider */}

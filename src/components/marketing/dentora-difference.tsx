@@ -23,7 +23,7 @@ export function DentoraDifference() {
       <SiteContainer className="grid gap-y-8 md:grid-cols-[.95fr_1fr] md:gap-x-10 md:gap-y-0 lg:grid-cols-[1.05fr_1fr] lg:gap-x-16 xl:gap-x-24">
         <header className="min-w-0 md:col-start-2 md:row-start-1">
           <p className="mb-6 text-xs font-semibold uppercase tracking-[.12em] text-on-ice lg:mb-8">
-            02 / The Dentora Difference
+            04 / The Dentora Difference
           </p>
           <h2 id="difference-heading" className="text-[clamp(38px,5.2vw,72px)] leading-[1.04] font-semibold tracking-[-.055em] text-black">
             <span className="block overflow-hidden pb-1"><span data-difference-line className="block">Care that feels</span></span>

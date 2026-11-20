@@ -8,7 +8,7 @@ export function Hero() {
   return (
     <section aria-labelledby="hero-heading" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-black text-white md:min-h-[max(760px,100svh)] lg:justify-center">
       <div aria-hidden="true" className="absolute inset-0 -z-30 overflow-hidden md:relative md:inset-auto md:mt-[calc(5rem+1px)] md:h-[clamp(22rem,48vw,30rem)] md:shrink-0 lg:absolute lg:inset-0 lg:mt-0 lg:h-auto">
-        <Image src="/images/heroimage.png" alt="" fill preload sizes="100vw" className="object-cover object-[68%_center] md:object-center" />
+        <Image src="/images/heroimage.png" alt="" fill priority sizes="100vw" className="object-cover object-[68%_center] md:object-center" />
       </div>
       <div aria-hidden="true" className="absolute inset-0 -z-20 bg-linear-to-t from-black/95 via-black/35 to-black/10 lg:bg-linear-to-r lg:from-black/85 lg:via-black/45 lg:to-transparent" />
       <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-black/60 to-transparent" />
